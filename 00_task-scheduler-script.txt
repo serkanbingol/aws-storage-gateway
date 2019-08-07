@@ -1,0 +1,45 @@
+-----Full-Backup SQL Script-------
+USE Northwind
+GO
+DECLARE @Date VARCHAR(20)
+DECLARE @BackupPath VARCHAR(256)
+DECLARE @BackUpFileName VARCHAR(256)
+SELECT @Date = REPLACE(CONVERT(VARCHAR(20),GETDATE(),103),'/','')
+SET @BackupPath = N'\\***.***.***.***\**********\'+@Date+'\'
+EXECUTE master.dbo.xp_create_subdir @BackupPath
+SET @BackUpFileName = @BackupPath + '\FullBackup_' + @Date + '.bak'
+BACKUP DATABASE [Northwind]
+TO  DISK = @BackUpFileName 
+WITH CHECKSUM;
+
+
+-----Differential-Backup SQL Script-------
+USE Northwind
+GO
+DECLARE @Date VARCHAR(20)
+DECLARE @BackupPath VARCHAR(256)
+DECLARE @BackUpFileName VARCHAR(256)
+DECLARE @BackupFolder VARCHAR(20)
+SELECT @BackupFolder =REPLACE(CONVERT(VARCHAR(20),GETDATE(),103),'/','')
+SELECT @Date = CONVERT(VARCHAR(20),GETDATE(),112) + REPLACE(CONVERT(VARCHAR(20),GETDATE(),108),':','')
+SET @BackupPath = N'\\***.***.***.***\**********\'+@BackupFolder +'\'
+SET @BackUpFileName = @BackupPath + 'DifferentialBackup_' + @Date + '.bak'
+BACKUP DATABASE [Northwind]
+TO  DISK = @BackUpFileName 
+WITH DIFFERENTIAL;
+
+
+-----Transactional Log-Backup SQL Script-------
+USE Northwind
+GO
+DECLARE @Date VARCHAR(20)
+DECLARE @BackupPath VARCHAR(256)
+DECLARE @BackUpFileName VARCHAR(256)
+DECLARE @BackupFolder VARCHAR(20)
+SELECT @BackupFolder =REPLACE(CONVERT(VARCHAR(20),GETDATE(),103),'/','')
+SELECT @Date = CONVERT(VARCHAR(20),GETDATE(),112) + REPLACE(CONVERT(VARCHAR(20),GETDATE(),108),':','')
+SET @BackupPath = N'\\***.***.***.***\**********\'+@BackupFolder+'\'
+SET @BackUpFileName = @BackupPath + 'Transaction_Backup_' + @Date + '.log'
+BACKUP LOG [Northwind]
+TO  DISK = @BackUpFileName
+
